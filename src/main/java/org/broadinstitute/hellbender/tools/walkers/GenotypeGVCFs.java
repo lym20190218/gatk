@@ -219,10 +219,10 @@ public final class GenotypeGVCFs extends VariantLocusWalker {
 
         if (hasUserSuppliedIntervals()) {
             if (mergeInputIntervals) {
-                userIntervals = intervalArgumentCollection.getSpanningIntervals(getBestAvailableSequenceDictionary());
+                intervals = intervalArgumentCollection.getSpanningIntervals(getBestAvailableSequenceDictionary());
             }
             else {
-                userIntervals = intervalArgumentCollection.getIntervals(getBestAvailableSequenceDictionary());
+                intervals = intervalArgumentCollection.getIntervals(getBestAvailableSequenceDictionary());
             }
         } else {
             intervals = Collections.emptyList();
