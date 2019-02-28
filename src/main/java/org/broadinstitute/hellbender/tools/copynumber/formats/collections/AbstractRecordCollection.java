@@ -17,7 +17,6 @@ import java.io.*;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * Represents {@link METADATA} (which can be represented as a {@link SAMFileHeader}),
@@ -79,7 +78,7 @@ public abstract class AbstractRecordCollection<METADATA extends Metadata, RECORD
         try (final RecordCollectionReader reader = new RecordCollectionReader(inputFile)) {
             metadata = MetadataUtils.fromHeader(reader.getHeader(), getMetadataType());
             TableUtils.checkMandatoryColumns(reader.columns(), mandatoryColumns, UserException.BadInput::new);
-            records = reader.stream().collect(Collectors.collectingAndThen(Collectors.toList(), ImmutableList::copyOf));
+            records = ImmutableList.copyOf(reader.stream().iterator());     //avoid creation of an intermediate list
         } catch (final IOException | UncheckedIOException e) {
             throw new UserException.CouldNotReadInputFile(inputFile, e);
         }
@@ -115,8 +114,8 @@ public abstract class AbstractRecordCollection<METADATA extends Metadata, RECORD
         } catch (final IOException e) {
             throw new UserException.CouldNotCreateOutputFile(outputFile, e);
         }
-        try (final RecordWriter recordWriter = new RecordWriter(new FileWriter(outputFile, true))) {
-            recordWriter.writeAllRecords(records);
+        try (final RecordCollectionWriter writer = new RecordCollectionWriter(new FileWriter(outputFile, true))) {
+            writer.writeAllRecords(records);
         } catch (final IOException e) {
             throw new UserException.CouldNotCreateOutputFile(outputFile, e);
         }
@@ -188,8 +187,8 @@ public abstract class AbstractRecordCollection<METADATA extends Metadata, RECORD
         }
     }
 
-    final class RecordWriter extends TableWriter<RECORD> {
-        RecordWriter(final Writer writer) throws IOException {
+    final class RecordCollectionWriter extends TableWriter<RECORD> {
+        RecordCollectionWriter(final Writer writer) throws IOException {
             super(writer, mandatoryColumns);
         }
 

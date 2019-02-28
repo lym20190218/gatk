@@ -93,8 +93,8 @@ public final class CalledLegacySegmentCollection extends AbstractSampleLocatable
     // output of SAM-style header is suppressed
     @Override
     public void write(final File outputFile) {
-        try (final RecordWriter recordWriter = new RecordWriter(new FileWriter(outputFile, true))) {
-            recordWriter.writeAllRecords(getRecords());
+        try (final RecordCollectionWriter writer = new RecordCollectionWriter(new FileWriter(outputFile))) {
+            writer.writeAllRecords(getRecords());
         } catch (final IOException e) {
             throw new UserException.CouldNotCreateOutputFile(outputFile, e);
         }
