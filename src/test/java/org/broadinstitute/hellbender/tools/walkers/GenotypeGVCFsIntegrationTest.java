@@ -259,6 +259,7 @@ public class GenotypeGVCFsIntegrationTest extends CommandLineProgramTest {
                 .addOutput(output);
         intervals.forEach(args::addInterval);
         args.add("--" + GenomicsDBImport.MERGE_INPUT_INTERVALS_LONG_NAME);
+        args.add("--only-output-calls-starting-in-intervals");
 
         Utils.resetRandomGenerator();
         runCommandLine(args);

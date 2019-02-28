@@ -176,7 +176,7 @@ public final class GenotypeGVCFs extends VariantLocusWalker {
 
     @Override
     protected void initializeIntervals() {
-        if (hasUserSuppliedIntervals()) {
+        if (intervalArgumentCollection.intervalsSpecified()) {
             final SAMSequenceDictionary sequenceDictionary = getBestAvailableSequenceDictionary();
             if (sequenceDictionary == null) {
                 throw new UserException("We require a sequence dictionary from a reference, a source of reads, or a source of variants to process intervals.  " +
@@ -217,12 +217,6 @@ public final class GenotypeGVCFs extends VariantLocusWalker {
 
         final VCFHeader inputVCFHeader = getHeaderForVariants();
 
-        if(onlyOutputCallsStartingInIntervals) {
-            if( !hasUserSuppliedIntervals()) {
-                throw new CommandLineException.MissingArgument("-L or -XL", "Intervals are required if --" + ONLY_OUTPUT_CALLS_STARTING_IN_INTERVALS_FULL_NAME + " was specified.");
-            }
-        }
-
         if (hasUserSuppliedIntervals()) {
             if (mergeInputIntervals) {
                 userIntervals = intervalArgumentCollection.getSpanningIntervals(getBestAvailableSequenceDictionary());
@@ -232,6 +226,12 @@ public final class GenotypeGVCFs extends VariantLocusWalker {
             }
         } else {
             intervals = Collections.emptyList();
+        }
+
+        if(onlyOutputCallsStartingInIntervals) {
+            if( !hasUserSuppliedIntervals()) {
+                throw new CommandLineException.MissingArgument("-L or -XL", "Intervals are required if --" + ONLY_OUTPUT_CALLS_STARTING_IN_INTERVALS_FULL_NAME + " was specified.");
+            }
         }
 
         final SampleList samples = new IndexedSampleList(inputVCFHeader.getGenotypeSamples()); //todo should this be getSampleNamesInOrder?
