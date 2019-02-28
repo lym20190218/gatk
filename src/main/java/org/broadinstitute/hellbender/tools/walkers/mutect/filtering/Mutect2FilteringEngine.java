@@ -27,6 +27,14 @@ public class Mutect2FilteringEngine {
     private final List<Mutect2VariantFilter> filters = new ArrayList<>();
     private final Set<String> normalSamples;
 
+    public static final List<String> STANDARD_MUTECT_INFO_FIELDS_FOR_FILTERING = Arrays.asList(
+            GATKVCFConstants.MEDIAN_MAPPING_QUALITY_KEY,
+            GATKVCFConstants.MEDIAN_BASE_QUALITY_KEY,
+            GATKVCFConstants.MEDIAN_READ_POSITON_KEY,
+            GATKVCFConstants.MEDIAN_FRAGMENT_LENGTH_KEY,
+            GATKVCFConstants.FORWARD_STRAND_COUNT_KEY
+    );
+
     /**
      * DATA ACCUMULATED AND LEARNED ON EACH PASS OF {@link FilterMutectCalls}
      */
