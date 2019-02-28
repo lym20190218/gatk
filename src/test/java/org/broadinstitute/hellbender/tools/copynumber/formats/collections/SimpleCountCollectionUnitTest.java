@@ -1,14 +1,18 @@
 package org.broadinstitute.hellbender.tools.copynumber.formats.collections;
 
+import com.google.common.collect.Lists;
 import htsjdk.samtools.SAMSequenceDictionary;
 import htsjdk.samtools.SAMSequenceRecord;
+import htsjdk.samtools.util.Log;
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.broadinstitute.hellbender.GATKBaseTest;
+import org.broadinstitute.hellbender.engine.FeatureDataSource;
 import org.broadinstitute.hellbender.exceptions.UserException;
 import org.broadinstitute.hellbender.tools.copynumber.formats.metadata.SampleLocatableMetadata;
 import org.broadinstitute.hellbender.tools.copynumber.formats.metadata.SimpleSampleLocatableMetadata;
 import org.broadinstitute.hellbender.tools.copynumber.formats.records.SimpleCount;
+import org.broadinstitute.hellbender.utils.LoggingUtils;
 import org.broadinstitute.hellbender.utils.SimpleInterval;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -17,6 +21,7 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 public final class SimpleCountCollectionUnitTest extends GATKBaseTest {
@@ -83,5 +88,20 @@ public final class SimpleCountCollectionUnitTest extends GATKBaseTest {
     @Test(expectedExceptions = UserException.BadInput.class)
     public void testReadDoubleCounts() {
         SimpleCountCollection.read(DOUBLE_COUNTS_FILE);
+    }
+
+    @Test
+    public void testQuery() {
+        LoggingUtils.setLoggingLevel(Log.LogLevel.DEBUG);
+        final File file = new File("/home/slee/working/gatk/test.counts.tsv");
+        final FeatureDataSource<SimpleCount> localSource = new FeatureDataSource<>("/home/slee/working/gatk/test.counts.tsv");
+        final FeatureDataSource<SimpleCount> bucketSource = new FeatureDataSource<>("gs://broad-dsde-methods-slee/test.counts.tsv");
+        final SimpleCountCollection counts = SimpleCountCollection.read(file);
+        final SimpleInterval interval = new SimpleInterval("chr3", 1, 11000);
+//        System.out.println(source.getSequenceDictionary().toString());
+//        System.out.println(counts.getMetadata().getSequenceDictionary().toString());
+        System.out.println(counts.getOverlapDetector().getOverlaps(interval).stream().sorted(counts.getComparator()).collect(Collectors.toList()));
+        System.out.println(Lists.newArrayList(localSource.query(interval)));
+        System.out.println(Lists.newArrayList(bucketSource.query(interval)));
     }
 }
